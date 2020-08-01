@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>webcam + php 拍摄并保存图片</title>
+</head>
+<body>
+
+<div id="my_camera"></div>
+<div id="my_result"></div>
+
+<a href="javascript:void(take_snapshot())">点击拍照</a></br></br>
+
+<!-- 添加图片验证码功能 -->
+<img src="captcha.php"></br>
+
+<input type="text" id="captcha" name="captcha" placeholder="请输入验证码"></br>
+<input type="text" id="pre" name="pre" placeholder="请输入保存后的图片的前缀"></br>
+
+<a href="javascript:void(upload())">点击上传照片</a></br>
+
+<!-- 引入 webcam.js 文件 -->
+<script src="webcam.js"></script>
+
+<script language="JavaScript">
+
+//设置镜头的大小
+Webcam.set({
+     width: 320,
+     height: 240,
+     image_format: 'jpeg',
+     jpeg_quality: 90
+}); 
+
+Webcam.attach( '#my_camera' );
+
+// 拍照
+function take_snapshot() {
+    Webcam.snap( function(data_uri) {
+    	// 点击拍照后，将照片放回页面
+        document.getElementById('my_result').innerHTML = '<img id="img_uri" src="'+data_uri+'"/>';
+    });
+}
+
+// 上传
+function upload() {
+	var img_uri = document.getElementById('img_uri').src;    // 图片信息
+	var captcha = document.getElementById('captcha').value;  // 验证码
+	var pre     = document.getElementById('pre').value;          // 图片前缀
+
+	if (img_uri.length == 0) {
+		alert("拍照失败");
+		return false;
+	}
+	if (captcha.length == 0) {
+		alert("请输入验证码");
+		return false;
+	}
+	if (pre.length == 0) {
+		alert("请输入保存后的图片的前缀");
+		return false;
+	}
+
+    // 将参数一起传给PHP
+    Webcam.upload(img_uri, 'action.php?captcha='+captcha+"&pre="+pre, function(code, text) {
+    	alert(text);
+    	location.reload();
+	});	
+}
+</script>
+</body>
+</html>
